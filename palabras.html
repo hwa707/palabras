@@ -1,0 +1,1197 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1" />
+<title>Palabras · 팔라브라스</title>
+
+<!-- iOS "Add to Home Screen" support -->
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Palabras" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="theme-color" content="#164F63" />
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' rx='40' fill='%23164F63'/%3E%3Ctext x='90' y='118' font-family='Georgia,serif' font-style='italic' font-weight='700' font-size='84' fill='%23F6F5F0' text-anchor='middle'%3EP%3C/text%3E%3C/svg%3E" />
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,500;0,600;1,500&family=Noto+Sans+KR:wght@400;500;600;700&display=swap');
+
+  :root {
+    --bg: #F6F5F0;
+    --paper: #FFFFFF;
+    --ink: #23303D;
+    --ink-soft: #64707C;
+    --azulejo: #1F6F8B;
+    --azulejo-deep: #164F63;
+    --ochre: #D99B33;
+    --ochre-soft: #F3E3C4;
+    --mistake: #B5482F;
+    --mistake-soft: #F5DDD5;
+    --sage: #4F7A5C;
+    --sage-soft: #DCE8DD;
+    --border: #E4DFD2;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--ink); font-family: 'Noto Sans KR', sans-serif; }
+  body { padding-bottom: env(safe-area-inset-bottom); }
+  .es-word { font-family: 'Fraunces', serif; }
+
+  .shell { max-width: 640px; margin: 0 auto; padding: calc(20px + env(safe-area-inset-top)) 20px 60px; }
+  .top { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 6px; }
+  .brand { font-family: 'Fraunces', serif; font-style: italic; font-weight: 600; font-size: 26px; color: var(--azulejo-deep); }
+  .progress-tag { font-size: 12.5px; color: var(--ink-soft); }
+  .progress-tag b { color: var(--azulejo-deep); }
+  .subtitle { font-size: 13.5px; color: var(--ink-soft); margin-bottom: 22px; }
+
+  .tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--border); margin-bottom: 22px; position: sticky; top: 0; background: var(--bg); z-index: 5; }
+  .tab-btn { flex: 1; background: none; border: none; padding: 10px 4px 12px; font-size: 13px; font-weight: 500; color: var(--ink-soft); cursor: pointer; border-bottom: 2px solid transparent; position: relative; font-family: 'Noto Sans KR', sans-serif; }
+  .tab-btn.active { color: var(--azulejo-deep); border-bottom: 2px solid var(--azulejo); font-weight: 700; }
+  .tab-badge { position: absolute; top: 2px; right: 4px; background: var(--mistake); color: white; font-size: 9.5px; font-weight: 700; width: 15px; height: 15px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+
+  .filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; align-items: center; }
+  .chip { border: 1px solid var(--border); background: var(--paper); color: var(--ink-soft); padding: 5px 12px; border-radius: 100px; font-size: 12px; cursor: pointer; }
+  .chip.active { background: var(--azulejo); color: white; border-color: var(--azulejo); }
+  .fav-toggle { margin-left: auto; display: flex; align-items: center; gap: 5px; font-size: 12.5px; color: var(--ink-soft); cursor: pointer; background: none; border: none; }
+
+  .card-wrap { display: flex; align-items: center; gap: 10px; }
+  .nav-arrow { background: none; border: none; color: var(--ink-soft); cursor: pointer; padding: 8px; flex-shrink: 0; font-size: 22px; }
+  .card { flex: 1; background: var(--paper); border: 1px solid var(--border); border-radius: 18px; padding: 34px 26px; min-height: 260px; display: flex; flex-direction: column; cursor: pointer; position: relative; }
+  .card-top { display: flex; justify-content: space-between; align-items: flex-start; }
+  .cat-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.6px; color: var(--ink-soft); }
+  .star-btn { background: none; border: none; cursor: pointer; color: var(--ochre); font-size: 18px; }
+  .word-main { font-size: 32px; font-weight: 600; margin: 22px 0 8px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .stress-mark { color: var(--azulejo); }
+  .speak-btn { background: var(--azulejo); border: none; color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; font-size: 14px; }
+  .word-ko { font-size: 15px; color: var(--ink-soft); margin-bottom: 4px; }
+  .flip-hint { font-size: 12px; color: var(--ink-soft); margin-top: auto; opacity: 0.7; }
+
+  .bridge { margin-top: 20px; padding-top: 18px; border-top: 1px dashed var(--border); }
+  .bridge-row { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+  .bridge-chip { padding: 5px 12px; border-radius: 100px; font-size: 13px; font-weight: 600; }
+  .bridge-chip.es { background: var(--azulejo); color: white; }
+  .bridge-chip.en { background: var(--ochre-soft); color: #6B4E1D; }
+  .bridge-arc { flex: 1; height: 1px; background: repeating-linear-gradient(90deg, var(--border) 0 6px, transparent 6px 10px); }
+  .etym-text { font-size: 13.5px; line-height: 1.6; color: var(--ink); margin: 0; }
+  .example-box { margin-top: 14px; background: var(--bg); border-radius: 10px; padding: 12px 14px; }
+  .example-es { font-family: 'Fraunces', serif; font-style: italic; font-size: 14.5px; }
+  .example-ko { font-size: 12.5px; color: var(--ink-soft); margin-top: 3px; }
+
+  .dot-row { display: flex; justify-content: center; align-items: center; gap: 6px; margin-top: 14px; font-size: 11.5px; color: var(--ink-soft); }
+
+  .rule-box { background: var(--paper); border: 1px solid var(--border); border-radius: 14px; padding: 16px 18px; margin-bottom: 20px; font-size: 13px; line-height: 1.7; color: var(--ink-soft); }
+  .rule-box b { color: var(--ink); }
+  .quiz-card { background: var(--paper); border: 1px solid var(--border); border-radius: 18px; padding: 36px 26px; text-align: center; }
+  .quiz-prompt { font-size: 13px; color: var(--ink-soft); margin-bottom: 18px; }
+  .syll-row { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; align-items: center; }
+  .syll-btn { font-family: 'Fraunces', serif; font-size: 20px; background: var(--bg); border: 2px solid var(--border); border-radius: 10px; padding: 10px 16px; cursor: pointer; color: var(--ink); }
+  .syll-btn.correct { background: var(--sage-soft); border-color: var(--sage); color: var(--sage); }
+  .syll-btn.wrong { background: var(--mistake-soft); border-color: var(--mistake); color: var(--mistake); }
+  .quiz-feedback { font-size: 13.5px; margin-top: 14px; font-weight: 600; min-height: 18px; }
+  .quiz-feedback.correct { color: var(--sage); }
+  .quiz-feedback.wrong { color: var(--mistake); }
+
+  .sentence-card { background: var(--paper); border: 1px solid var(--border); border-radius: 18px; padding: 26px; }
+  .target-word { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+  .target-word .es-word { font-size: 24px; font-weight: 600; }
+  .target-meta { font-size: 13px; color: var(--ink-soft); margin-bottom: 18px; }
+  textarea { width: 100%; border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; font-family: 'Noto Sans KR', sans-serif; font-size: 16px; resize: vertical; min-height: 76px; background: var(--bg); color: var(--ink); }
+  textarea:focus, input:focus { outline: 2px solid var(--azulejo); outline-offset: 1px; }
+  .btn-row { display: flex; gap: 8px; margin-top: 12px; }
+  .btn { border: none; border-radius: 9px; padding: 10px 18px; font-size: 13.5px; font-weight: 600; cursor: pointer; font-family: 'Noto Sans KR', sans-serif; }
+  .btn.primary { background: var(--azulejo); color: white; }
+  .btn.ghost { background: var(--bg); color: var(--ink-soft); border: 1px solid var(--border); }
+  .feedback-box { margin-top: 16px; border-radius: 10px; padding: 14px 16px; font-size: 13.5px; line-height: 1.6; }
+  .feedback-box.pass { background: var(--sage-soft); color: #2F4A38; }
+  .feedback-box.fail { background: var(--mistake-soft); color: #6B2E1E; }
+  .feedback-box .model { margin-top: 8px; font-family: 'Fraunces', serif; font-style: italic; }
+
+  .empty-state { text-align: center; padding: 60px 20px; color: var(--ink-soft); }
+  .empty-state .icon { font-size: 28px; margin-bottom: 10px; color: var(--azulejo); }
+  .review-section-title { font-size: 12px; text-transform: uppercase; letter-spacing: 0.6px; color: var(--ink-soft); margin: 22px 0 10px; }
+  .review-item { background: var(--paper); border: 1px solid var(--border); border-left: 3px solid var(--mistake); border-radius: 10px; padding: 16px 18px; margin-bottom: 12px; }
+  .review-item-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+  .review-item-head .es-word { font-size: 18px; font-weight: 600; }
+  .review-user-answer { font-size: 13px; color: var(--ink-soft); background: var(--bg); border-radius: 8px; padding: 8px 10px; margin-bottom: 10px; }
+  .review-input-row { display: flex; gap: 8px; }
+  .review-input-row input { flex: 1; border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; font-size: 14px; font-family: 'Noto Sans KR', sans-serif; }
+  .icon-btn { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; cursor: pointer; color: var(--ink-soft); font-size: 13px; }
+  .review-note { font-size: 12px; color: var(--mistake); margin-top: 6px; }
+
+  .install-tip { background: var(--ochre-soft); color: #6B4E1D; border-radius: 12px; padding: 12px 14px; font-size: 12.5px; line-height: 1.6; margin-bottom: 18px; display: flex; justify-content: space-between; gap: 10px; align-items: flex-start; }
+  .install-tip button { background: none; border: none; color: #6B4E1D; font-weight: 700; cursor: pointer; font-size: 14px; flex-shrink: 0; }
+</style>
+</head>
+<body>
+<div class="shell">
+  <div class="top">
+    <span class="brand">Palabras · 팔라브라스</span>
+    <span class="progress-tag">학습한 단어 <b id="learnedCount">0</b> / <span id="totalCount">0</span></span>
+  </div>
+  <p class="subtitle" id="subtitle"></p>
+
+  <div id="installTip"></div>
+
+  <div class="tabs">
+    <button class="tab-btn" data-tab="cards">단어카드</button>
+    <button class="tab-btn" data-tab="quiz">강세 퀴즈</button>
+    <button class="tab-btn" data-tab="sentence">문장 만들기</button>
+    <button class="tab-btn" data-tab="review">오답노트<span class="tab-badge" id="mistakeBadge" style="display:none;"></span></button>
+  </div>
+
+  <div id="tabContent"></div>
+</div>
+
+<script>
+/* ------------------------------------------------------------------ */
+/* Stress + syllable helpers                                           */
+/* ------------------------------------------------------------------ */
+function toWord(syllStr) { return syllStr.split("-").join(""); }
+function computeStress(syllStr) {
+  var sylls = syllStr.split("-");
+  var accented = "áéíóú";
+  for (var i = 0; i < sylls.length; i++) {
+    for (var j = 0; j < sylls[i].length; j++) {
+      if (accented.indexOf(sylls[i][j]) !== -1) return i;
+    }
+  }
+  var word = toWord(syllStr);
+  var last = word.slice(-1);
+  if ("aeiouns".indexOf(last) !== -1) return Math.max(sylls.length - 2, 0);
+  return sylls.length - 1;
+}
+function escapeHtml(str) {
+  return String(str).replace(/[&<>"']/g, function (c) {
+    return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+  });
+}
+
+/* ------------------------------------------------------------------ */
+/* Data                                                                 */
+/* ------------------------------------------------------------------ */
+var PATTERNS = [
+  { key: "cion", esSuffix: "-ción / -sión", enSuffix: "-tion",
+    note: "라틴어 '-tio'에서 갈라진 짝이에요. -ción/-sión으로 끝나는 단어는 언제나 그 음절에 강세가 있어요.",
+    words: [
+      ["na-ción","국가","nation","Es una nación pequeña.","작은 국가예요."],
+      ["in-for-ma-ción","정보","information","Necesito más información.","정보가 더 필요해요."],
+      ["e-du-ca-ción","교육","education","La educación es importante.","교육은 중요해요."],
+      ["co-mu-ni-ca-ción","의사소통","communication","La comunicación es la clave.","의사소통이 핵심이에요."],
+      ["de-ci-sión","결정","decision","Es una buena decisión.","좋은 결정이에요."],
+      ["ac-ción","행동","action","¡Necesitamos acción ahora!","지금 행동이 필요해요!"],
+      ["a-ten-ción","주의","attention","Presta atención, por favor.","주의를 기울여주세요."],
+      ["si-tua-ción","상황","situation","La situación es difícil.","상황이 어려워요."],
+      ["or-ga-ni-za-ción","조직","organization","Trabajo en una organización.","저는 한 조직에서 일해요."],
+      ["con-ver-sa-ción","대화","conversation","Tuvimos una buena conversación.","우리는 좋은 대화를 나눴어요."],
+      ["po-bla-ción","인구","population","La población crece cada año.","인구가 매년 늘어나요."],
+      ["pro-duc-ción","생산","production","La producción aumentó.","생산이 늘었어요."],
+      ["tra-di-ción","전통","tradition","Es una vieja tradición.","오래된 전통이에요."],
+      ["re-vo-lu-ción","혁명","revolution","Fue una revolución cultural.","그건 문화 혁명이었어요."],
+      ["so-lu-ción","해결책","solution","Encontramos una solución.","우리는 해결책을 찾았어요."],
+      ["con-di-ción","조건","condition","Acepto esa condición.","그 조건을 받아들일게요."],
+      ["es-ta-ción","역/계절","station","La estación está cerca.","그 역은 가까워요."],
+      ["ins-pi-ra-ción","영감","inspiration","Busco inspiración.","저는 영감을 찾고 있어요."]
+    ]},
+  { key: "dad", esSuffix: "-dad / -tad", enSuffix: "-ty",
+    note: "라틴어 '-tas'에서 왔어요. -dad/-tad로 끝나는 단어는 항상 마지막 음절에 강세가 있어요.",
+    words: [
+      ["ciu-dad","도시","city","Vivo en una ciudad grande.","저는 큰 도시에 살아요."],
+      ["u-ni-ver-si-dad","대학교","university","Estudio en la universidad.","저는 대학교에서 공부해요."],
+      ["re-a-li-dad","현실","reality","Volvamos a la realidad.","현실로 돌아가요."],
+      ["po-si-bi-li-dad","가능성","possibility","Hay una posibilidad.","가능성이 있어요."],
+      ["per-so-na-li-dad","성격","personality","Tiene una gran personalidad.","그는 성격이 좋아요."],
+      ["ac-ti-vi-dad","활동","activity","Me gusta esta actividad.","저는 이 활동이 좋아요."],
+      ["o-por-tu-ni-dad","기회","opportunity","Es una gran oportunidad.","정말 좋은 기회예요."],
+      ["co-mu-ni-dad","공동체","community","Formamos una comunidad.","우리는 공동체를 이뤄요."],
+      ["so-cie-dad","사회","society","La sociedad está cambiando.","사회가 변하고 있어요."],
+      ["va-rie-dad","다양성","variety","Hay mucha variedad aquí.","여기 다양성이 많아요."],
+      ["cu-rio-si-dad","호기심","curiosity","Tengo mucha curiosidad.","저는 호기심이 많아요."],
+      ["se-gu-ri-dad","안전","security","La seguridad es prioridad.","안전이 최우선이에요."],
+      ["ca-pa-ci-dad","능력","capacity","Tiene gran capacidad.","그는 능력이 뛰어나요."],
+      ["di-fi-cul-tad","어려움","difficulty","No hay dificultad.","어려움은 없어요."],
+      ["ca-li-dad","품질","quality","Este producto tiene calidad.","이 제품은 품질이 좋아요."],
+      ["can-ti-dad","양","quantity","Necesito cierta cantidad.","일정한 양이 필요해요."],
+      ["i-den-ti-dad","정체성","identity","Busco mi identidad.","저는 제 정체성을 찾고 있어요."],
+      ["di-ver-si-dad","다양성","diversity","Celebramos la diversidad.","우리는 다양성을 기념해요."]
+    ]},
+  { key: "oso", esSuffix: "-oso / -osa", enSuffix: "-ous",
+    note: "라틴어 '-osus'(가득 찬)에서 왔어요. -oso로 끝나는 단어는 항상 뒤에서 두 번째 음절에 강세가 있어요.",
+    words: [
+      ["fa-mo-so","유명한","famous","Es un actor famoso.","그는 유명한 배우예요."],
+      ["cu-rio-so","궁금한","curious","Soy muy curioso.","저는 아주 궁금한 게 많아요."],
+      ["de-li-cio-so","맛있는","delicious","El café está delicioso.","그 커피는 맛있어요."],
+      ["re-li-gio-so","종교적인","religious","Es un lugar religioso.","그곳은 종교적인 장소예요."],
+      ["ge-ne-ro-so","너그러운","generous","Eres muy generoso.","당신은 정말 너그러워요."],
+      ["ner-vio-so","긴장한","nervous","Estoy un poco nervioso.","저는 조금 긴장했어요."],
+      ["mis-te-rio-so","신비로운","mysterious","Es un caso misterioso.","그건 신비로운 사건이에요."],
+      ["nu-me-ro-so","수많은","numerous","Tiene numerosos amigos.","그는 친구가 수없이 많아요."],
+      ["am-bi-cio-so","야심 있는","ambitious","Es un plan ambicioso.","그건 야심 있는 계획이에요."],
+      ["pre-cio-so","소중한","precious","Este momento es precioso.","이 순간은 소중해요."],
+      ["fu-rio-so","격노한","furious","Está furioso conmigo.","그는 저에게 격노했어요."],
+      ["glo-rio-so","영광스러운","glorious","Fue un día glorioso.","영광스러운 하루였어요."],
+      ["fa-bu-lo-so","환상적인","fabulous","¡Qué fiesta tan fabulosa!","정말 환상적인 파티예요!"],
+      ["vic-to-rio-so","승리한","victorious","El equipo salió victorioso.","그 팀은 승리했어요."],
+      ["ma-ra-vi-llo-so","멋진","marvelous","Tuvimos un viaje maravilloso.","우리는 멋진 여행을 했어요."],
+      ["con-ta-gio-so","전염되는","contagious","Su risa es contagiosa.","그의 웃음은 전염돼요."],
+      ["es-pa-cio-so","널찍한","spacious","El cuarto es espacioso.","그 방은 널찍해요."],
+      ["cau-te-lo-so","신중한","cautious","Sé cauteloso con eso.","그건 신중하게 다루세요."]
+    ]},
+  { key: "mente", esSuffix: "-mente", enSuffix: "-ly",
+    note: "라틴어 'mente'(마음으로)가 붙어 만들어진 부사예요. 원래 형용사에 강세 부호가 있으면 그대로 유지돼요.",
+    words: [
+      ["rá-pi-da-men-te","빠르게","rapidly","Corre rápidamente.","그는 빠르게 달려요."],
+      ["fá-cil-men-te","쉽게","easily","Lo resolví fácilmente.","저는 그걸 쉽게 해결했어요."],
+      ["na-tu-ral-men-te","자연스럽게","naturally","Naturalmente, dije que sí.","당연히 저는 그러겠다고 했어요."],
+      ["ge-ne-ral-men-te","일반적으로","generally","Generalmente como en casa.","저는 보통 집에서 먹어요."],
+      ["es-pe-cial-men-te","특히","especially","Me gusta, especialmente el final.","저는 좋아해요, 특히 결말이요."],
+      ["re-al-men-te","정말로","really","Realmente lo siento.","정말로 미안해요."],
+      ["fi-nal-men-te","마침내","finally","Finalmente llegamos.","마침내 우리는 도착했어요."],
+      ["pro-ba-ble-men-te","아마도","probably","Probablemente llueva mañana.","아마 내일 비가 올 거예요."],
+      ["nor-mal-men-te","보통","normally","Normalmente trabajo desde casa.","저는 보통 집에서 일해요."],
+      ["sim-ple-men-te","그냥","simply","Simplemente no lo sé.","그냥 저도 모르겠어요."],
+      ["di-rec-ta-men-te","곧장","directly","Ve directamente a casa.","곧장 집으로 가세요."],
+      ["com-ple-ta-men-te","완전히","completely","Estoy completamente de acuerdo.","저는 완전히 동의해요."],
+      ["fre-cuen-te-men-te","자주","frequently","Viajo frecuentemente.","저는 자주 여행해요."],
+      ["per-fec-ta-men-te","완벽하게","perfectly","Todo salió perfectamente.","모든 게 완벽하게 됐어요."]
+    ]},
+  { key: "ico", esSuffix: "-ico / -ica", enSuffix: "-ic",
+    note: "그리스어 '-ikos'에서 왔어요. 규칙에서 벗어나 뒤에서 세 번째 음절에 강세가 오기 때문에 항상 악센트 부호가 붙어요.",
+    words: [
+      ["cien-tí-fi-co","과학적인","scientific","Es un dato científico.","그건 과학적인 자료예요."],
+      ["his-tó-ri-co","역사적인","historic","Es un edificio histórico.","그건 역사적인 건물이에요."],
+      ["e-co-nó-mi-co","경제적인","economic","El plan es económico.","그 계획은 경제적이에요."],
+      ["po-lí-ti-co","정치적인","political","Es un tema político.","그건 정치적인 주제예요."],
+      ["es-pe-cí-fi-co","구체적인","specific","Dame un ejemplo específico.","구체적인 예시를 주세요."],
+      ["au-to-má-ti-co","자동적인","automatic","Es un proceso automático.","그건 자동적인 과정이에요."],
+      ["dra-má-ti-co","극적인","dramatic","El final fue dramático.","결말이 극적이었어요."],
+      ["ar-tís-ti-co","예술적인","artistic","Tiene mucho talento artístico.","그는 예술적 재능이 많아요."],
+      ["au-tén-ti-co","진짜의","authentic","Es un cuadro auténtico.","그건 진짜 그림이에요."],
+      ["e-lec-tró-ni-co","전자의","electronic","Compré un libro electrónico.","저는 전자책을 샀어요."],
+      ["tec-no-ló-gi-co","기술적인","technological","Hubo un avance tecnológico.","기술적인 발전이 있었어요."],
+      ["ma-te-má-ti-co","수학적인","mathematical","Resolví el problema matemático.","저는 수학 문제를 풀었어요."],
+      ["at-lé-ti-co","운동의","athletic","Tiene un cuerpo atlético.","그는 운동선수 같은 몸이에요."],
+      ["a-ca-dé-mi-co","학문적인","academic","Es un logro académico.","그건 학문적인 성취예요."],
+      ["bá-si-co","기본적인","basic","Es un curso básico.","그건 기초 과정이에요."],
+      ["tí-pi-co","전형적인","typical","Es un día típico.","그건 평범한 하루예요."],
+      ["ló-gi-co","논리적인","logical","Tu razonamiento es lógico.","당신의 추론은 논리적이에요."],
+      ["clá-si-co","고전적인","classic","Es una película clásica.","그건 고전 영화예요."]
+    ]},
+  { key: "anteente", esSuffix: "-ante / -ente", enSuffix: "-ant / -ent",
+    note: "라틴어 현재분사 어미 '-antem/-entem'에서 왔어요. 모음으로 끝나므로 뒤에서 두 번째 음절에 강세가 있어요.",
+    words: [
+      ["im-por-tan-te","중요한","important","Esto es muy importante.","이건 아주 중요해요."],
+      ["di-fe-ren-te","다른","different","Cada ciudad es diferente.","각 도시는 서로 달라요."],
+      ["es-tu-dian-te","학생","student","Ella es una buena estudiante.","그녀는 좋은 학생이에요."],
+      ["in-te-re-san-te","흥미로운","interesting","Es un libro interesante.","그건 흥미로운 책이에요."],
+      ["pre-sen-te","현재의","present","Vive en el presente.","그는 현재에 살아요."],
+      ["ur-gen-te","긴급한","urgent","Es un mensaje urgente.","그건 긴급한 메시지예요."],
+      ["in-te-li-gen-te","똑똑한","intelligent","Tu perro es inteligente.","당신의 개는 똑똑해요."],
+      ["e-vi-den-te","명백한","evident","El error es evidente.","그 실수는 명백해요."],
+      ["su-fi-cien-te","충분한","sufficient","Tenemos tiempo suficiente.","우리는 충분한 시간이 있어요."],
+      ["pa-cien-te","참을성 있는","patient","Sé paciente conmigo.","저에게 참을성을 가져주세요."],
+      ["ex-ce-len-te","훌륭한","excellent","Hiciste un trabajo excelente.","훌륭한 작업을 했어요."],
+      ["e-le-gan-te","우아한","elegant","Lleva un vestido elegante.","그녀는 우아한 드레스를 입었어요."],
+      ["cons-tan-te","지속적인","constant","Hay un ruido constante.","지속적인 소음이 있어요."],
+      ["a-bun-dan-te","풍부한","abundant","Hay comida abundante.","음식이 풍부해요."],
+      ["to-le-ran-te","관대한","tolerant","Es muy tolerante con todos.","그는 모두에게 관대해요."],
+      ["bri-llan-te","빛나는","brilliant","Tuvo una idea brillante.","그는 빛나는 아이디어가 있었어요."]
+    ]},
+  { key: "ario", esSuffix: "-ario / -aria", enSuffix: "-ary",
+    note: "라틴어 '-arius'에서 왔어요. 마지막 -rio는 이중모음이라 한 음절로 세고, 뒤에서 두 번째 음절에 강세가 있어요.",
+    words: [
+      ["ne-ce-sa-rio","필요한","necessary","No es necesario.","그건 필요하지 않아요."],
+      ["dic-cio-na-rio","사전","dictionary","Uso el diccionario.","저는 사전을 사용해요."],
+      ["a-ni-ver-sa-rio","기념일","anniversary","Hoy es nuestro aniversario.","오늘은 우리의 기념일이에요."],
+      ["vo-ca-bu-la-rio","어휘","vocabulary","Aprendo vocabulario nuevo.","저는 새 어휘를 배워요."],
+      ["vo-lun-ta-rio","자원봉사자","volunteer","Soy voluntario los sábados.","저는 토요일마다 자원봉사를 해요."],
+      ["or-di-na-rio","평범한","ordinary","Fue un día ordinario.","평범한 하루였어요."],
+      ["sa-la-rio","월급","salary","Recibo mi salario hoy.","오늘 월급을 받아요."],
+      ["i-ti-ne-ra-rio","일정","itinerary","Preparé el itinerario.","저는 일정을 준비했어요."],
+      ["co-men-ta-rio","논평","commentary","Dejó un comentario amable.","그는 친절한 논평을 남겼어요."],
+      ["i-ma-gi-na-rio","가상의","imaginary","Tiene un amigo imaginario.","그는 상상 속 친구가 있어요."],
+      ["se-cre-ta-rio","비서","secretary","Habla con el secretario.","비서와 이야기하세요."],
+      ["li-te-ra-rio","문학의","literary","Ganó un premio literario.","그는 문학상을 받았어요."],
+      ["so-li-ta-rio","외로운","solitary","Prefiere una vida solitaria.","그는 외로운 삶을 선호해요."]
+    ]},
+  { key: "ismo", esSuffix: "-ismo", enSuffix: "-ism",
+    note: "그리스어 '-ismos'에서 왔어요. -ismo로 끝나는 단어는 뒤에서 두 번째 음절에 강세가 있어요.",
+    words: [
+      ["tu-ris-mo","관광","tourism","El turismo crece aquí.","이곳에서 관광이 늘고 있어요."],
+      ["op-ti-mis-mo","낙관주의","optimism","Admiro tu optimismo.","당신의 낙관주의를 존경해요."],
+      ["pe-si-mis-mo","비관주의","pessimism","Evita el pesimismo.","비관주의를 피하세요."],
+      ["re-a-lis-mo","현실주의","realism","Prefiero el realismo.","저는 현실주의를 선호해요."],
+      ["e-go-ís-mo","이기주의","egoism","Eso es puro egoísmo.","그건 순전한 이기주의예요."],
+      ["he-ro-ís-mo","영웅적 행위","heroism","Mostró gran heroísmo.","그는 대단한 영웅적 행위를 보였어요."],
+      ["ca-pi-ta-lis-mo","자본주의","capitalism","Estudiamos el capitalismo.","우리는 자본주의를 공부해요."],
+      ["so-cia-lis-mo","사회주의","socialism","Debaten sobre el socialismo.","그들은 사회주의에 대해 토론해요."],
+      ["me-ca-nis-mo","장치","mechanism","Este mecanismo es simple.","이 장치는 간단해요."],
+      ["or-ga-nis-mo","유기체","organism","Es un organismo pequeño.","그건 작은 유기체예요."],
+      ["ra-cis-mo","인종차별","racism","El racismo es injusto.","인종차별은 부당해요."],
+      ["i-de-a-lis-mo","이상주의","idealism","Tiene mucho idealismo.","그는 이상주의가 강해요."]
+    ]},
+  { key: "ista", esSuffix: "-ista", enSuffix: "-ist",
+    note: "그리스어 '-istes'에서 왔어요. 남녀 모두에게 쓰이며, 뒤에서 두 번째 음절에 강세가 있어요.",
+    words: [
+      ["ar-tis-ta","예술가","artist","Mi hermano es artista.","제 형은 예술가예요."],
+      ["tu-ris-ta","관광객","tourist","Hay muchos turistas aquí.","여기 관광객이 많아요."],
+      ["den-tis-ta","치과의사","dentist","Voy al dentista mañana.","저는 내일 치과에 가요."],
+      ["pia-nis-ta","피아니스트","pianist","Es una pianista talentosa.","그녀는 재능 있는 피아니스트예요."],
+      ["pe-rio-dis-ta","기자","journalist","Trabaja como periodista.","그는 기자로 일해요."],
+      ["op-ti-mis-ta","낙관주의자","optimist","Soy un optimista.","저는 낙관주의자예요."],
+      ["pe-si-mis-ta","비관주의자","pessimist","No seas tan pesimista.","그렇게 비관적이지 마세요."],
+      ["es-pe-cia-lis-ta","전문가","specialist","Consulta a un especialista.","전문가와 상담하세요."],
+      ["no-ve-lis-ta","소설가","novelist","Es mi novelista favorito.","제가 가장 좋아하는 소설가예요."],
+      ["fi-na-lis-ta","결승 진출자","finalist","Llegó a finalista.","그는 결승 진출자가 되었어요."],
+      ["ac-ti-vis-ta","활동가","activist","Es una activista social.","그녀는 사회 활동가예요."],
+      ["re-a-lis-ta","현실주의자","realist","Sé realista sobre esto.","이 일에 현실적으로 생각하세요."]
+    ]},
+  { key: "al", esSuffix: "-al", enSuffix: "-al",
+    note: "라틴어 형용사 어미 '-alis'에서 왔어요. 자음(l)으로 끝나므로 마지막 음절에 강세가 있어요.",
+    words: [
+      ["per-so-nal","개인적인","personal","Es una decisión personal.","그건 개인적인 결정이에요."],
+      ["nor-mal","정상적인","normal","Todo parece normal.","모든 게 정상적으로 보여요."],
+      ["cen-tral","중심의","central","Vivo en el centro central.","저는 중심가에 살아요."],
+      ["to-tal","전체의","total","El total es cien dólares.","총액은 100달러예요."],
+      ["o-ri-gi-nal","독창적인","original","Tiene una idea original.","그는 독창적인 아이디어가 있어요."],
+      ["tro-pi-cal","열대의","tropical","Es una isla tropical.","그곳은 열대 섬이에요."],
+      ["cul-tu-ral","문화적인","cultural","Hay un evento cultural.","문화 행사가 있어요."],
+      ["na-cio-nal","국가의","national","Es un parque nacional.","그건 국립공원이에요."],
+      ["mo-ral","도덕적인","moral","Tiene un fuerte sentido moral.","그는 도덕관념이 강해요."],
+      ["for-mal","격식 있는","formal","Es una reunión formal.","그건 격식 있는 회의예요."],
+      ["di-gi-tal","디지털의","digital","Prefiero la cámara digital.","저는 디지털카메라를 선호해요."],
+      ["na-tu-ral","자연스러운","natural","Prefiero algo más natural.","저는 좀 더 자연스러운 게 좋아요."],
+      ["es-pe-cial","특별한","special","Hoy es un día especial.","오늘은 특별한 날이에요."],
+      ["ge-ne-ral","일반적인","general","Por lo general, llego a tiempo.","저는 보통 제시간에 도착해요."]
+    ]},
+  { key: "misc", esSuffix: "기타", enSuffix: "mixed",
+    note: "패턴 하나로 묶이진 않지만 영어와 뿌리가 같아서 알아보기 쉬운 단어들이에요.",
+    words: [
+      ["te-lé-fo-no","전화기","telephone","Uso mi teléfono todos los días.","저는 매일 제 전화기를 사용해요."],
+      ["hos-pi-tal","병원","hospital","El hospital está cerca de mi casa.","그 병원은 우리 집에서 가까워요."],
+      ["res-tau-ran-te","레스토랑","restaurant","Vamos a un restaurante nuevo.","우리 새로운 레스토랑에 가요."],
+      ["o-cé-a-no","바다","ocean","El océano es enorme.","그 바다는 정말 넓어요."],
+      ["mú-si-ca","음악","music","Me encanta la música.","저는 음악을 아주 좋아해요."],
+      ["a-ni-mal","동물","animal","Mi animal favorito es el gato.","제가 가장 좋아하는 동물은 고양이예요."],
+      ["ca-pi-tal","수도","capital","Madrid es la capital de España.","마드리드는 스페인의 수도예요."],
+      ["mo-der-no","현대적인","modern","El diseño es muy moderno.","그 디자인은 아주 현대적이에요."],
+      ["per-fec-to","완벽한","perfect","¡Tu plan es perfecto!","네 계획은 완벽해!"],
+      ["ro-mán-ti-co","낭만적인","romantic","Es un lugar muy romántico.","여긴 아주 낭만적인 곳이에요."],
+      ["fan-tás-ti-co","환상적인","fantastic","¡Qué idea tan fantástica!","정말 환상적인 생각이에요!"],
+      ["po-si-ble","가능한","possible","Es posible terminar hoy.","오늘 끝내는 게 가능해요."]
+    ]}
+];
+
+/* ------------------------------------------------------------------ */
+/* Basic everyday vocabulary (not suffix-pattern based) — numbers,      */
+/* colors, family, food, verbs, etc. for absolute beginners.            */
+/* ------------------------------------------------------------------ */
+var BASIC_GROUPS = [
+  { key: "num", label: "숫자", words: [
+    ["ce-ro","0","zero","El resultado es cero.","결과는 0이에요."],
+    ["u-no","1","one","Tengo uno.","저는 하나 있어요."],
+    ["dos","2","two","Tengo dos manzanas.","저는 사과가 두 개 있어요."],
+    ["tres","3","three","Son las tres.","3시예요."],
+    ["cua-tro","4","four","Tengo cuatro hermanos.","저는 형제가 넷이에요."],
+    ["cin-co","5","five","Faltan cinco minutos.","5분 남았어요."],
+    ["seis","6","six","Son las seis.","6시예요."],
+    ["sie-te","7","seven","Hay siete días.","일주일은 7일이에요."],
+    ["o-cho","8","eight","Trabajo ocho horas.","저는 8시간 일해요."],
+    ["nue-ve","9","nine","Llegamos a las nueve.","우리는 9시에 도착해요."],
+    ["diez","10","ten","Cuento hasta diez.","저는 열까지 세요."],
+    ["on-ce","11","eleven","Es la clase de las once.","11시 수업이에요."],
+    ["do-ce","12","twelve","Hay doce meses.","1년은 열두 달이에요."],
+    ["tre-ce","13","thirteen","Tengo trece años.","저는 열세 살이에요."],
+    ["ca-tor-ce","14","fourteen","Son catorce estudiantes.","학생이 열네 명이에요."],
+    ["quin-ce","15","fifteen","Faltan quince días.","보름 남았어요."],
+    ["die-ci-séis","16","sixteen","Cumple dieciséis años.","그는 열여섯 살이 돼요."],
+    ["die-ci-sie-te","17","seventeen","Tiene diecisiete años.","그녀는 열일곱 살이에요."],
+    ["die-ci-o-cho","18","eighteen","Ya tiene dieciocho años.","그는 이제 열여덟 살이에요."],
+    ["die-ci-nue-ve","19","nineteen","Tiene diecinueve años.","그녀는 열아홉 살이에요."],
+    ["vein-te","20","twenty","Tiene veinte años.","그는 스무 살이에요."],
+    ["trein-ta","30","thirty","Mi madre tiene treinta años.","제 어머니는 서른 살이에요."],
+    ["cua-ren-ta","40","forty","Trabaja cuarenta horas.","그는 40시간 일해요."],
+    ["cin-cuen-ta","50","fifty","Cuesta cincuenta euros.","50유로예요."],
+    ["se-sen-ta","60","sixty","Hay sesenta minutos en una hora.","한 시간은 60분이에요."],
+    ["se-ten-ta","70","seventy","Mi abuelo tiene setenta años.","제 할아버지는 일흔 살이에요."],
+    ["o-chen-ta","80","eighty","Corre a ochenta kilómetros.","시속 80킬로미터로 달려요."],
+    ["no-ven-ta","90","ninety","Cuesta noventa dólares.","90달러예요."],
+    ["cien","100","hundred","Cuesta cien pesos.","100페소예요."]
+  ]},
+  { key: "color", label: "색깔", words: [
+    ["ro-jo","빨강","red","Me gusta el rojo.","저는 빨강을 좋아해요."],
+    ["a-zul","파랑","blue","El cielo es azul.","하늘은 파래요."],
+    ["ver-de","초록","green","La hoja es verde.","잎은 초록색이에요."],
+    ["a-ma-ri-llo","노랑","yellow","El sol es amarillo.","해는 노란색이에요."],
+    ["ne-gro","검정","black","Tengo un gato negro.","저는 검은 고양이가 있어요."],
+    ["blan-co","하양","white","La nieve es blanca.","눈은 하얘요."],
+    ["gris","회색","gray","El cielo está gris.","하늘이 회색이에요."],
+    ["ro-sa","분홍","pink","Me regaló una flor rosa.","그는 저에게 분홍 꽃을 줬어요."],
+    ["mo-ra-do","보라","purple","El vestido es morado.","그 드레스는 보라색이에요."],
+    ["na-ran-ja","주황","orange","Me gusta el color naranja.","저는 주황색을 좋아해요."],
+    ["ma-rrón","갈색","brown","Tengo ojos marrones.","저는 갈색 눈을 가졌어요."],
+    ["do-ra-do","금색","golden","El anillo es dorado.","그 반지는 금색이에요."]
+  ]},
+  { key: "day", label: "요일", words: [
+    ["lu-nes","월요일","Monday","Trabajo los lunes.","저는 월요일마다 일해요."],
+    ["mar-tes","화요일","Tuesday","Trabajo los martes.","저는 화요일마다 일해요."],
+    ["miér-co-les","수요일","Wednesday","Trabajo los miércoles.","저는 수요일마다 일해요."],
+    ["jue-ves","목요일","Thursday","Trabajo los jueves.","저는 목요일마다 일해요."],
+    ["vier-nes","금요일","Friday","Trabajo los viernes.","저는 금요일마다 일해요."],
+    ["sá-ba-do","토요일","Saturday","Descanso los sábados.","저는 토요일마다 쉬어요."],
+    ["do-min-go","일요일","Sunday","Descanso los domingos.","저는 일요일마다 쉬어요."]
+  ]},
+  { key: "month", label: "달", words: [
+    ["e-ne-ro","1월","January","Nací en enero.","저는 1월에 태어났어요."],
+    ["fe-bre-ro","2월","February","Nací en febrero.","저는 2월에 태어났어요."],
+    ["mar-zo","3월","March","Nací en marzo.","저는 3월에 태어났어요."],
+    ["a-bril","4월","April","Nací en abril.","저는 4월에 태어났어요."],
+    ["ma-yo","5월","May","Nací en mayo.","저는 5월에 태어났어요."],
+    ["ju-nio","6월","June","Nací en junio.","저는 6월에 태어났어요."],
+    ["ju-lio","7월","July","Nací en julio.","저는 7월에 태어났어요."],
+    ["a-gos-to","8월","August","Nací en agosto.","저는 8월에 태어났어요."],
+    ["sep-tiem-bre","9월","September","Nací en septiembre.","저는 9월에 태어났어요."],
+    ["oc-tu-bre","10월","October","Nací en octubre.","저는 10월에 태어났어요."],
+    ["no-viem-bre","11월","November","Nací en noviembre.","저는 11월에 태어났어요."],
+    ["di-ciem-bre","12월","December","Nací en diciembre.","저는 12월에 태어났어요."]
+  ]},
+  { key: "family", label: "가족", words: [
+    ["ma-dre","엄마","mother","Quiero a mi madre.","저는 엄마를 사랑해요."],
+    ["pa-dre","아빠","father","Mi padre trabaja mucho.","제 아빠는 일을 많이 해요."],
+    ["her-ma-no","형제","brother","Tengo un hermano.","저는 형제가 한 명 있어요."],
+    ["her-ma-na","자매","sister","Mi hermana estudia arte.","제 언니는 미술을 공부해요."],
+    ["hi-jo","아들","son","Su hijo es médico.","그의 아들은 의사예요."],
+    ["hi-ja","딸","daughter","Su hija canta bien.","그녀의 딸은 노래를 잘해요."],
+    ["a-bue-lo","할아버지","grandfather","Mi abuelo cuenta historias.","제 할아버지는 이야기를 들려주세요."],
+    ["a-bue-la","할머니","grandmother","Mi abuela cocina delicioso.","제 할머니는 요리를 맛있게 하세요."],
+    ["tí-o","삼촌","uncle","Mi tío vive en Madrid.","제 삼촌은 마드리드에 살아요."],
+    ["tí-a","이모","aunt","Mi tía es maestra.","제 이모는 선생님이에요."],
+    ["pri-mo","사촌","cousin","Mi primo llega mañana.","제 사촌이 내일 도착해요."],
+    ["pri-ma","사촌","cousin","Mi prima vive cerca.","제 사촌은 가까이 살아요."],
+    ["es-po-so","남편","husband","Su esposo es amable.","그녀의 남편은 친절해요."],
+    ["es-po-sa","아내","wife","Su esposa es doctora.","그의 아내는 의사예요."],
+    ["nie-to","손자","grandson","Su nieto tiene cinco años.","그의 손자는 다섯 살이에요."],
+    ["nie-ta","손녀","granddaughter","Su nieta es muy lista.","그녀의 손녀는 아주 똑똑해요."]
+  ]},
+  { key: "food", label: "음식·음료", words: [
+    ["a-gua","물","water","Bebo mucha agua.","저는 물을 많이 마셔요."],
+    ["pan","빵","bread","Como pan por la mañana.","저는 아침에 빵을 먹어요."],
+    ["le-che","우유","milk","Me gusta la leche fría.","저는 차가운 우유를 좋아해요."],
+    ["ca-fé","커피","coffee","Tomo café cada mañana.","저는 매일 아침 커피를 마셔요."],
+    ["té","차","tea","Bebo té por la tarde.","저는 오후에 차를 마셔요."],
+    ["que-so","치즈","cheese","Me encanta el queso.","저는 치즈를 아주 좋아해요."],
+    ["hue-vo","계란","egg","Como un huevo al día.","저는 하루에 계란 하나를 먹어요."],
+    ["a-rroz","쌀·밥","rice","El arroz está caliente.","밥이 따뜻해요."],
+    ["car-ne","고기","meat","No como carne.","저는 고기를 안 먹어요."],
+    ["po-llo","닭고기","chicken","El pollo está delicioso.","닭고기가 맛있어요."],
+    ["pes-ca-do","생선","fish","Compramos pescado fresco.","우리는 신선한 생선을 샀어요."],
+    ["fru-ta","과일","fruit","Como fruta todos los días.","저는 매일 과일을 먹어요."],
+    ["man-za-na","사과","apple","Quiero una manzana.","저는 사과 하나를 원해요."],
+    ["plá-ta-no","바나나","banana","El plátano está maduro.","바나나가 잘 익었어요."],
+    ["u-va","포도","grape","Las uvas son dulces.","포도가 달아요."],
+    ["fre-sa","딸기","strawberry","Me gustan las fresas.","저는 딸기를 좋아해요."],
+    ["li-món","레몬","lemon","El limón es ácido.","레몬은 셔요."],
+    ["to-ma-te","토마토","tomato","Corto el tomate.","저는 토마토를 썰어요."],
+    ["pa-ta-ta","감자","potato","Frío la patata.","저는 감자를 튀겨요."],
+    ["ce-bo-lla","양파","onion","La cebolla huele fuerte.","양파는 냄새가 강해요."],
+    ["a-jo","마늘","garlic","Añado ajo a la sopa.","저는 수프에 마늘을 넣어요."],
+    ["sal","소금","salt","Falta sal en la sopa.","수프에 소금이 부족해요."],
+    ["a-zú-car","설탕","sugar","No uso azúcar.","저는 설탕을 안 써요."],
+    ["a-cei-te","기름","oil","Uso aceite de oliva.","저는 올리브 기름을 써요."],
+    ["so-pa","수프","soup","La sopa está caliente.","수프가 뜨거워요."],
+    ["en-sa-la-da","샐러드","salad","Prefiero la ensalada.","저는 샐러드를 선호해요."],
+    ["pas-tel","케이크","cake","Hice un pastel de chocolate.","저는 초콜릿 케이크를 만들었어요."],
+    ["he-la-do","아이스크림","ice cream","Me encanta el helado.","저는 아이스크림을 아주 좋아해요."],
+    ["cho-co-la-te","초콜릿","chocolate","Regalo chocolate.","저는 초콜릿을 선물해요."],
+    ["vi-no","와인","wine","Tomamos vino tinto.","우리는 레드 와인을 마셔요."],
+    ["cer-ve-za","맥주","beer","Pido una cerveza.","저는 맥주 한 잔을 주문해요."],
+    ["ju-go","주스","juice","Bebo jugo de naranja.","저는 오렌지 주스를 마셔요."],
+    ["man-te-qui-lla","버터","butter","Unto mantequilla en el pan.","저는 빵에 버터를 발라요."],
+    ["yo-gur","요거트","yogurt","Como yogur natural.","저는 플레인 요거트를 먹어요."],
+    ["miel","꿀","honey","Endulzo el té con miel.","저는 차에 꿀을 넣어 달게 해요."]
+  ]},
+  { key: "animal", label: "동물", words: [
+    ["pe-rro","개","dog","Mi perro es amigable.","제 개는 친근해요."],
+    ["ga-to","고양이","cat","El gato duerme mucho.","고양이는 잠을 많이 자요."],
+    ["pá-ja-ro","새","bird","El pájaro canta.","새가 노래해요."],
+    ["pez","물고기","fish","El pez nada rápido.","물고기가 빠르게 헤엄쳐요."],
+    ["ca-ba-llo","말","horse","El caballo corre.","말이 달려요."],
+    ["va-ca","소","cow","La vaca da leche.","소는 우유를 줘요."],
+    ["cer-do","돼지","pig","El cerdo come mucho.","돼지는 많이 먹어요."],
+    ["o-ve-ja","양","sheep","La oveja tiene lana.","양은 털이 있어요."],
+    ["ga-lli-na","암탉","hen","La gallina pone huevos.","암탉이 알을 낳아요."],
+    ["le-ón","사자","lion","El león es fuerte.","사자는 힘이 세요."],
+    ["ti-gre","호랑이","tiger","El tigre es rápido.","호랑이는 빨라요."],
+    ["o-so","곰","bear","El oso duerme en invierno.","곰은 겨울에 잠을 자요."],
+    ["e-le-fan-te","코끼리","elephant","El elefante es grande.","코끼리는 커요."],
+    ["mo-no","원숭이","monkey","El mono salta.","원숭이가 뛰어요."],
+    ["co-ne-jo","토끼","rabbit","El conejo salta rápido.","토끼는 빠르게 뛰어요."],
+    ["ra-tón","쥐","mouse","El ratón es pequeño.","쥐는 작아요."],
+    ["lo-bo","늑대","wolf","El lobo aúlla.","늑대가 울부짖어요."],
+    ["zo-rro","여우","fox","El zorro es astuto.","여우는 영리해요."],
+    ["ser-pien-te","뱀","snake","La serpiente no tiene patas.","뱀은 다리가 없어요."],
+    ["a-be-ja","벌","bee","La abeja hace miel.","벌은 꿀을 만들어요."]
+  ]},
+  { key: "body", label: "신체", words: [
+    ["ca-be-za","머리","head","Me duele la cabeza.","저는 머리가 아파요."],
+    ["ca-ra","얼굴","face","Tiene la cara redonda.","그는 얼굴이 동그래요."],
+    ["o-jo","눈","eye","Tiene los ojos verdes.","그녀는 초록 눈을 가졌어요."],
+    ["na-riz","코","nose","Le sangra la nariz.","그는 코피가 나요."],
+    ["bo-ca","입","mouth","Abre la boca.","입을 벌리세요."],
+    ["o-re-ja","귀","ear","Tiene orejas grandes.","그는 귀가 커요."],
+    ["ma-no","손","hand","Levanta la mano.","손을 드세요."],
+    ["bra-zo","팔","arm","Me duele el brazo.","저는 팔이 아파요."],
+    ["pier-na","다리","leg","Tiene las piernas largas.","그는 다리가 길어요."],
+    ["pie","발","foot","Me duele el pie.","저는 발이 아파요."],
+    ["de-do","손가락","finger","Se cortó el dedo.","그는 손가락을 베였어요."],
+    ["co-ra-zón","심장","heart","Su corazón late rápido.","그의 심장이 빠르게 뛰어요."],
+    ["es-pal-da","등","back","Me duele la espalda.","저는 등이 아파요."],
+    ["cue-llo","목","neck","Tiene el cuello largo.","그는 목이 길어요."],
+    ["dien-te","치아","tooth","Me duele un diente.","저는 이가 아파요."],
+    ["pe-lo","머리카락","hair","Tiene el pelo negro.","그녀는 검은 머리예요."]
+  ]},
+  { key: "place", label: "장소", words: [
+    ["ca-sa","집","house","Vuelvo a casa.","저는 집에 돌아가요."],
+    ["es-cue-la","학교","school","Voy a la escuela.","저는 학교에 가요."],
+    ["par-que","공원","park","Caminamos en el parque.","우리는 공원에서 걸어요."],
+    ["tien-da","가게","store","Compro pan en la tienda.","저는 가게에서 빵을 사요."],
+    ["i-gle-sia","교회","church","Vamos a la iglesia.","우리는 교회에 가요."],
+    ["pla-ya","해변","beach","Nadamos en la playa.","우리는 해변에서 수영해요."],
+    ["mon-ta-ña","산","mountain","Subimos la montaña.","우리는 산을 올라요."],
+    ["rí-o","강","river","El río es largo.","그 강은 길어요."],
+    ["ca-lle","거리","street","Cruzo la calle.","저는 거리를 건너요."],
+    ["puer-ta","문","door","Cierra la puerta.","문을 닫으세요."],
+    ["ven-ta-na","창문","window","Abro la ventana.","저는 창문을 열어요."],
+    ["co-ci-na","부엌","kitchen","Cocino en la cocina.","저는 부엌에서 요리해요."],
+    ["ba-ño","화장실","bathroom","¿Dónde está el baño?","화장실이 어디예요?"],
+    ["jar-dín","정원","garden","Las flores están en el jardín.","꽃들이 정원에 있어요."],
+    ["mer-ca-do","시장","market","Voy al mercado.","저는 시장에 가요."]
+  ]},
+  { key: "verb", label: "동사", words: [
+    ["ser","~이다","to be","Quiero ser médico.","저는 의사가 되고 싶어요."],
+    ["es-tar","있다","to be (state)","Quiero estar contigo.","저는 당신과 함께 있고 싶어요."],
+    ["te-ner","가지다","to have","Quiero tener tiempo.","저는 시간을 갖고 싶어요."],
+    ["ha-cer","하다","to do/make","Voy a hacer la cena.","저는 저녁을 만들 거예요."],
+    ["ir","가다","to go","Quiero ir a casa.","저는 집에 가고 싶어요."],
+    ["ve-nir","오다","to come","Puedes venir mañana.","당신은 내일 올 수 있어요."],
+    ["co-mer","먹다","to eat","Me gusta comer fruta.","저는 과일 먹는 걸 좋아해요."],
+    ["be-ber","마시다","to drink","Voy a beber agua.","저는 물을 마실 거예요."],
+    ["dor-mir","자다","to sleep","Necesito dormir más.","저는 더 자야 해요."],
+    ["ha-blar","말하다","to speak","Quiero hablar español.","저는 스페인어를 말하고 싶어요."],
+    ["es-cu-char","듣다","to listen","Me gusta escuchar música.","저는 음악 듣는 걸 좋아해요."],
+    ["le-er","읽다","to read","Quiero leer un libro.","저는 책을 읽고 싶어요."],
+    ["es-cri-bir","쓰다","to write","Voy a escribir una carta.","저는 편지를 쓸 거예요."],
+    ["ca-mi-nar","걷다","to walk","Me gusta caminar.","저는 걷는 걸 좋아해요."],
+    ["co-rrer","달리다","to run","Voy a correr esta tarde.","저는 오늘 오후에 달릴 거예요."],
+    ["tra-ba-jar","일하다","to work","Tengo que trabajar hoy.","저는 오늘 일해야 해요."],
+    ["es-tu-diar","공부하다","to study","Voy a estudiar español.","저는 스페인어를 공부할 거예요."],
+    ["ju-gar","놀다","to play","Los niños quieren jugar.","아이들은 놀고 싶어해요."],
+    ["can-tar","노래하다","to sing","Me gusta cantar.","저는 노래하는 걸 좋아해요."],
+    ["bai-lar","춤추다","to dance","Vamos a bailar.","우리는 춤출 거예요."],
+    ["com-prar","사다","to buy","Necesito comprar pan.","저는 빵을 사야 해요."],
+    ["ven-der","팔다","to sell","Quiero vender mi coche.","저는 제 차를 팔고 싶어요."],
+    ["a-brir","열다","to open","Voy a abrir la puerta.","저는 문을 열 거예요."],
+    ["ce-rrar","닫다","to close","Necesito cerrar la ventana.","저는 창문을 닫아야 해요."],
+    ["vi-vir","살다","to live","Quiero vivir en España.","저는 스페인에 살고 싶어요."],
+    ["a-mar","사랑하다","to love","Te amo mucho.","저는 당신을 많이 사랑해요."],
+    ["que-rer","원하다","to want","Quiero un café.","저는 커피 한 잔을 원해요."],
+    ["sa-ber","알다","to know","No sé la respuesta.","저는 답을 몰라요."],
+    ["po-der","할 수 있다","to be able","Puedo ayudarte.","저는 당신을 도울 수 있어요."],
+    ["ver","보다","to see","Quiero ver una película.","저는 영화를 보고 싶어요."],
+    ["mi-rar","쳐다보다","to look at","Me gusta mirar el cielo.","저는 하늘을 쳐다보는 걸 좋아해요."],
+    ["pen-sar","생각하다","to think","Necesito pensar un poco.","저는 좀 생각해야 해요."],
+    ["sen-tir","느끼다","to feel","Puedo sentir el frío.","저는 추위를 느낄 수 있어요."],
+    ["sa-lir","나가다","to go out","Quiero salir esta noche.","저는 오늘 밤 나가고 싶어요."],
+    ["lle-gar","도착하다","to arrive","Vamos a llegar tarde.","우리는 늦게 도착할 거예요."]
+  ]},
+  { key: "adj", label: "형용사", words: [
+    ["gran-de","큰","big","La casa es grande.","그 집은 커요."],
+    ["pe-que-ño","작은","small","El perro es pequeño.","그 개는 작아요."],
+    ["al-to","키가 큰","tall","Mi hermano es alto.","제 형은 키가 커요."],
+    ["ba-jo","키가 작은","short","Ella es baja.","그녀는 키가 작아요."],
+    ["bue-no","좋은","good","Es un buen libro.","그건 좋은 책이에요."],
+    ["ma-lo","나쁜","bad","No es un mal día.","나쁜 날은 아니에요."],
+    ["fe-liz","행복한","happy","Estoy feliz hoy.","저는 오늘 행복해요."],
+    ["tris-te","슬픈","sad","Se ve triste.","그는 슬퍼 보여요."],
+    ["ca-lien-te","뜨거운","hot","El café está caliente.","커피가 뜨거워요."],
+    ["frí-o","차가운","cold","El agua está fría.","물이 차가워요."],
+    ["nue-vo","새로운","new","Tengo un coche nuevo.","저는 새 차가 있어요."],
+    ["vie-jo","오래된","old","Vive en una casa vieja.","그는 오래된 집에 살아요."],
+    ["jo-ven","젊은","young","Se ve muy joven.","그는 아주 젊어 보여요."],
+    ["ri-co","맛있는","tasty/rich","El pastel está rico.","케이크가 맛있어요."],
+    ["po-bre","가난한","poor","La familia era pobre.","그 가족은 가난했어요."],
+    ["fuer-te","강한","strong","Es muy fuerte.","그는 아주 힘이 세요."],
+    ["dé-bil","약한","weak","Se siente débil.","그는 힘이 없다고 느껴요."],
+    ["rá-pi-do","빠른","fast","El tren es rápido.","그 기차는 빨라요."],
+    ["len-to","느린","slow","El caracol es lento.","달팽이는 느려요."],
+    ["lim-pio","깨끗한","clean","El cuarto está limpio.","방이 깨끗해요."],
+    ["su-cio","더러운","dirty","El coche está sucio.","차가 더러워요."],
+    ["fá-cil","쉬운","easy","El examen fue fácil.","시험은 쉬웠어요."],
+    ["di-fí-cil","어려운","difficult","El problema es difícil.","그 문제는 어려워요."],
+    ["bo-ni-to","예쁜","pretty","El jardín es bonito.","그 정원은 예뻐요."],
+    ["fe-o","못생긴","ugly","El edificio es feo.","그 건물은 못생겼어요."]
+  ]},
+  { key: "qwords", label: "의문사·전치사", words: [
+    ["qué","무엇","what","¿Qué quieres?","무엇을 원하세요?"],
+    ["quién","누구","who","¿Quién es?","누구세요?"],
+    ["cuán-do","언제","when","¿Cuándo llegas?","언제 도착해요?"],
+    ["dón-de","어디","where","¿Dónde vives?","어디 사세요?"],
+    ["có-mo","어떻게","how","¿Cómo estás?","어떻게 지내요?"],
+    ["cuán-to","얼마나","how much","¿Cuánto cuesta?","얼마예요?"],
+    ["cuál","어느","which","¿Cuál prefieres?","어느 걸 선호하세요?"],
+    ["con","~와 함께","with","Voy con mi amigo.","저는 제 친구와 함께 가요."],
+    ["sin","~없이","without","Café sin azúcar, por favor.","설탕 없는 커피 주세요."],
+    ["pa-ra","~을 위해","for","Es un regalo para ti.","이건 당신을 위한 선물이에요."],
+    ["des-de","~부터","from/since","Vivo aquí desde enero.","저는 1월부터 여기 살아요."],
+    ["has-ta","~까지","until","Trabajo hasta las seis.","저는 6시까지 일해요."],
+    ["en-tre","~사이에","between","Está entre la mesa y la silla.","그건 탁자와 의자 사이에 있어요."],
+    ["so-bre","~위에","on/about","El libro está sobre la mesa.","책이 탁자 위에 있어요."]
+  ]},
+  { key: "nature", label: "날씨·자연", words: [
+    ["sol","해","sun","Hace sol hoy.","오늘은 해가 나요."],
+    ["lu-na","달","moon","La luna es hermosa.","달이 아름다워요."],
+    ["es-tre-lla","별","star","Veo una estrella.","저는 별을 봐요."],
+    ["cie-lo","하늘","sky","El cielo está despejado.","하늘이 맑아요."],
+    ["llu-via","비","rain","Hay mucha lluvia.","비가 많이 와요."],
+    ["nie-ve","눈","snow","Me encanta la nieve.","저는 눈을 아주 좋아해요."],
+    ["vien-to","바람","wind","Hace mucho viento.","바람이 많이 불어요."],
+    ["nu-be","구름","cloud","Hay una nube grande.","큰 구름이 있어요."],
+    ["ca-lor","더위","heat","Hace mucho calor.","날씨가 아주 더워요."],
+    ["tie-rra","땅·지구","earth","La tierra es redonda.","지구는 둥글어요."],
+    ["fue-go","불","fire","Enciende el fuego.","불을 켜세요."],
+    ["mar","바다","sea","Me gusta el mar.","저는 바다를 좋아해요."],
+    ["ár-bol","나무","tree","Hay un árbol grande.","큰 나무가 있어요."],
+    ["flor","꽃","flower","Me regaló una flor.","그는 저에게 꽃을 줬어요."],
+    ["ho-ja","잎","leaf","La hoja cae del árbol.","잎이 나무에서 떨어져요."]
+  ]},
+  { key: "clothing", label: "옷", words: [
+    ["ca-mi-sa","셔츠","shirt","Llevo una camisa azul.","저는 파란 셔츠를 입어요."],
+    ["pan-ta-lón","바지","pants","Compré un pantalón nuevo.","저는 새 바지를 샀어요."],
+    ["ves-ti-do","원피스","dress","El vestido es bonito.","그 원피스는 예뻐요."],
+    ["za-pa-to","신발","shoe","Necesito zapatos nuevos.","저는 새 신발이 필요해요."],
+    ["som-bre-ro","모자","hat","Lleva un sombrero.","그는 모자를 써요."],
+    ["a-bri-go","코트","coat","Hace frío, ponte el abrigo.","추워요, 코트를 입으세요."],
+    ["fal-da","치마","skirt","La falda es larga.","그 치마는 길어요."],
+    ["cal-ce-tín","양말","sock","Perdí un calcetín.","저는 양말 한 짝을 잃어버렸어요."],
+    ["bu-fan-da","목도리","scarf","Uso una bufanda en invierno.","저는 겨울에 목도리를 해요."],
+    ["guan-te","장갑","glove","Necesito guantes.","저는 장갑이 필요해요."],
+    ["cin-tu-rón","벨트","belt","El cinturón es de cuero.","그 벨트는 가죽이에요."],
+    ["cha-que-ta","재킷","jacket","Llevo una chaqueta negra.","저는 검은 재킷을 입어요."]
+  ]},
+  { key: "time", label: "시간표현", words: [
+    ["hoy","오늘","today","Hoy es un buen día.","오늘은 좋은 날이에요."],
+    ["ma-ña-na","내일·아침","tomorrow/morning","Nos vemos mañana.","내일 봐요."],
+    ["a-yer","어제","yesterday","Ayer fue domingo.","어제는 일요일이었어요."],
+    ["a-ho-ra","지금","now","Ahora estoy libre.","저는 지금 한가해요."],
+    ["no-che","밤","night","Salimos por la noche.","우리는 밤에 나가요."],
+    ["tar-de","오후·늦은","afternoon/late","Llegamos tarde.","우리는 늦게 도착해요."],
+    ["tem-pra-no","이른·일찍","early","Me levanto temprano.","저는 일찍 일어나요."],
+    ["se-ma-na","주","week","Trabajo toda la semana.","저는 일주일 내내 일해요."],
+    ["mes","달·월","month","Viajo el próximo mes.","저는 다음 달에 여행해요."],
+    ["a-ño","년","year","Feliz año nuevo.","새해 복 많이 받으세요."],
+    ["ho-ra","시간","hour","Espero una hora.","저는 한 시간 기다려요."],
+    ["mi-nu-to","분","minute","Vuelvo en un minuto.","저는 1분 후에 돌아올게요."]
+  ]},
+  { key: "house", label: "집·물건", words: [
+    ["me-sa","탁자","table","Pongo el libro en la mesa.","저는 책을 탁자에 놓아요."],
+    ["si-lla","의자","chair","Siéntate en la silla.","의자에 앉으세요."],
+    ["ca-ma","침대","bed","Voy a la cama.","저는 침대로 가요."],
+    ["li-bro","책","book","Leo un libro.","저는 책을 읽어요."],
+    ["lá-piz","연필","pencil","Escribo con un lápiz.","저는 연필로 써요."],
+    ["pa-pel","종이","paper","Necesito papel.","저는 종이가 필요해요."],
+    ["bol-sa","가방","bag","Llevo mi bolsa.","저는 제 가방을 들어요."],
+    ["re-loj","시계","clock/watch","Miro el reloj.","저는 시계를 봐요."],
+    ["es-pe-jo","거울","mirror","Me miro en el espejo.","저는 거울을 봐요."],
+    ["lla-ve","열쇠","key","Perdí mi llave.","저는 제 열쇠를 잃어버렸어요."],
+    ["di-ne-ro","돈","money","No tengo dinero.","저는 돈이 없어요."],
+    ["re-ga-lo","선물","gift","Te traigo un regalo.","제가 당신에게 선물을 가져와요."],
+    ["ca-ja","상자","box","Abro la caja.","저는 상자를 열어요."],
+    ["luz","빛·전등","light","Enciende la luz.","불을 켜세요."],
+    ["cu-cha-ra","숟가락","spoon","Como con una cuchara.","저는 숟가락으로 먹어요."]
+  ]},
+  { key: "transport", label: "교통", words: [
+    ["co-che","자동차","car","Compré un coche.","저는 차를 샀어요."],
+    ["au-to-bús","버스","bus","Tomo el autobús.","저는 버스를 타요."],
+    ["tren","기차","train","El tren llega tarde.","기차가 늦게 도착해요."],
+    ["a-vión","비행기","airplane","El avión despega pronto.","비행기가 곧 이륙해요."],
+    ["bar-co","배","ship","El barco navega.","배가 항해해요."],
+    ["bi-ci-cle-ta","자전거","bicycle","Voy en bicicleta.","저는 자전거를 타고 가요."],
+    ["ta-xi","택시","taxi","Tomamos un taxi.","우리는 택시를 타요."],
+    ["me-tro","지하철","subway","Voy en metro al trabajo.","저는 지하철로 출근해요."],
+    ["ca-mión","트럭","truck","El camión es grande.","그 트럭은 커요."],
+    ["mo-to","오토바이","motorcycle","Conduce una moto.","그는 오토바이를 몰아요."],
+    ["ca-rre-te-ra","도로","road","La carretera está vacía.","그 도로는 비어있어요."],
+    ["via-je","여행","trip","Planeo un viaje.","저는 여행을 계획해요."]
+  ]}
+];
+
+var WORDS = [];
+PATTERNS.forEach(function (p) {
+  p.words.forEach(function (w, i) {
+    WORDS.push({
+      id: p.key + "-" + i,
+      syllables: w[0].split("-"),
+      stress: computeStress(w[0]),
+      es: toWord(w[0]),
+      ko: w[1],
+      en: w[2],
+      example: w[3],
+      exampleKo: w[4],
+      patternLabel: p.esSuffix + " · " + p.enSuffix,
+      etymology: p.note,
+      groupType: "pattern"
+    });
+  });
+});
+BASIC_GROUPS.forEach(function (g) {
+  g.words.forEach(function (w, i) {
+    WORDS.push({
+      id: "basic-" + g.key + "-" + i,
+      syllables: w[0].split("-"),
+      stress: computeStress(w[0]),
+      es: toWord(w[0]),
+      ko: w[1],
+      en: w[2],
+      example: w[3],
+      exampleKo: w[4],
+      patternLabel: g.label,
+      etymology: '"' + g.label + '" 주제로 자주 쓰는 기초 단어예요.',
+      groupType: "basic"
+    });
+  });
+});
+var FILTERS = ["전체"].concat(PATTERNS.map(function (p) { return p.esSuffix + " · " + p.enSuffix; })).concat(BASIC_GROUPS.map(function (g) { return g.label; }));
+
+/* ------------------------------------------------------------------ */
+/* Persistence                                                          */
+/* ------------------------------------------------------------------ */
+var STORE_KEY = "palabras_v1";
+function loadStore() {
+  try {
+    var raw = localStorage.getItem(STORE_KEY);
+    if (!raw) throw new Error("empty");
+    var data = JSON.parse(raw);
+    return {
+      favorites: new Set(data.favorites || []),
+      viewed: new Set(data.viewed || []),
+      mistakes: data.mistakes || [],
+      installDismissed: !!data.installDismissed
+    };
+  } catch (e) {
+    return { favorites: new Set(), viewed: new Set(), mistakes: [], installDismissed: false };
+  }
+}
+function saveStore() {
+  try {
+    localStorage.setItem(STORE_KEY, JSON.stringify({
+      favorites: Array.from(state.favorites),
+      viewed: Array.from(state.viewed),
+      mistakes: state.mistakes,
+      installDismissed: state.installDismissed
+    }));
+  } catch (e) {}
+}
+
+/* ------------------------------------------------------------------ */
+/* State                                                                 */
+/* ------------------------------------------------------------------ */
+var persisted = loadStore();
+var state = {
+  tab: "cards",
+  filter: "전체",
+  cardIndex: 0,
+  flipped: false,
+  favorites: persisted.favorites,
+  viewed: persisted.viewed,
+  onlyFavorites: false,
+  installDismissed: persisted.installDismissed,
+  quizWordId: WORDS[0].id,
+  quizFeedback: null,
+  sentenceWordId: WORDS[1].id,
+  sentenceInput: "",
+  sentenceFeedback: null,
+  mistakes: persisted.mistakes,
+  reviewInputs: {}
+};
+var mistakeSeq = (state.mistakes.reduce(function (m, x) { return Math.max(m, x.rid || 0); }, 0)) + 1;
+function nextId() { return mistakeSeq++; }
+
+/* ------------------------------------------------------------------ */
+/* Helpers                                                               */
+/* ------------------------------------------------------------------ */
+function speak(text) {
+  if (!window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+  var utter = new SpeechSynthesisUtterance(text);
+  utter.lang = "es-ES";
+  utter.rate = 0.85;
+  var voices = window.speechSynthesis.getVoices();
+  var esVoice = voices.find(function (v) { return v.lang && v.lang.indexOf("es") === 0; });
+  if (esVoice) utter.voice = esVoice;
+  window.speechSynthesis.speak(utter);
+}
+function checkSentence(word, raw) {
+  var trimmed = raw.trim();
+  var containsWord = trimmed.toLowerCase().indexOf(word.es.toLowerCase()) !== -1;
+  var wordCount = trimmed.split(/\s+/).filter(Boolean).length;
+  var passed = containsWord && wordCount >= 3;
+  return { passed: passed, containsWord: containsWord, wordCount: wordCount, trimmed: trimmed };
+}
+function getFilteredWords() {
+  var list = state.filter === "전체" ? WORDS : WORDS.filter(function (w) { return w.patternLabel === state.filter; });
+  if (state.onlyFavorites) list = list.filter(function (w) { return state.favorites.has(w.id); });
+  return list;
+}
+function pickRandomWord(excludeId) {
+  var pool = WORDS.filter(function (w) { return w.id !== excludeId; });
+  return pool[Math.floor(Math.random() * pool.length)];
+}
+function findWord(id) { return WORDS.filter(function (w) { return w.id === id; })[0]; }
+
+/* ------------------------------------------------------------------ */
+/* Render: header                                                        */
+/* ------------------------------------------------------------------ */
+function renderHeader() {
+  document.getElementById("learnedCount").textContent = state.viewed.size;
+  document.getElementById("totalCount").textContent = WORDS.length;
+  document.getElementById("subtitle").textContent = "접미사 패턴으로 배우는 스페인어 동족어 " + WORDS.length + "개";
+  var badge = document.getElementById("mistakeBadge");
+  if (state.mistakes.length > 0) { badge.style.display = "flex"; badge.textContent = state.mistakes.length; }
+  else { badge.style.display = "none"; }
+  document.querySelectorAll(".tab-btn").forEach(function (btn) {
+    btn.classList.toggle("active", btn.dataset.tab === state.tab);
+  });
+}
+
+/* ------------------------------------------------------------------ */
+/* Render: install tip (Add to Home Screen)                              */
+/* ------------------------------------------------------------------ */
+function renderInstallTip() {
+  var el = document.getElementById("installTip");
+  var isStandalone = window.navigator.standalone || window.matchMedia("(display-mode: standalone)").matches;
+  var isIOS = /iphone|ipad|ipod/i.test(window.navigator.userAgent);
+  if (isStandalone || state.installDismissed || !isIOS) { el.innerHTML = ""; return; }
+  el.innerHTML =
+    '<div class="install-tip">' +
+      '<span>📲 하단 공유 버튼 → <b>홈 화면에 추가</b>를 누르면 앱처럼 바탕화면에서 바로 열 수 있어요.</span>' +
+      '<button id="dismissInstall">✕</button>' +
+    '</div>';
+  document.getElementById("dismissInstall").addEventListener("click", function () {
+    state.installDismissed = true;
+    saveStore();
+    renderInstallTip();
+  });
+}
+
+/* ------------------------------------------------------------------ */
+/* Render: cards tab                                                     */
+/* ------------------------------------------------------------------ */
+function renderCards() {
+  var filtered = getFilteredWords();
+  var idx = filtered.length ? state.cardIndex % filtered.length : 0;
+  var card = filtered.length ? filtered[idx] : null;
+
+  var html = '<div class="filters">';
+  FILTERS.forEach(function (f) {
+    html += '<button class="chip' + (state.filter === f ? " active" : "") + '" data-filter="' + escapeHtml(f) + '">' + escapeHtml(f) + '</button>';
+  });
+  html += '<button class="fav-toggle" id="favToggle">' + (state.onlyFavorites ? "★" : "☆") + ' 즐겨찾기만</button>';
+  html += '</div>';
+
+  if (!card) {
+    html += '<div class="empty-state"><div class="icon">📖</div><div>조건에 맞는 단어가 없어요. 필터를 바꿔보세요.</div></div>';
+    document.getElementById("tabContent").innerHTML = html;
+    bindCardEvents();
+    return;
+  }
+
+  html += '<div class="card-wrap">';
+  html += '<button class="nav-arrow" id="prevCard">‹</button>';
+  html += '<div class="card" id="flipCard">';
+  html += '<div class="card-top"><span class="cat-label">' + escapeHtml(card.patternLabel) + '</span>';
+  html += '<button class="star-btn" id="starBtn">' + (state.favorites.has(card.id) ? "★" : "☆") + '</button></div>';
+  html += '<div class="word-main es-word">';
+  card.syllables.forEach(function (s, i) {
+    html += '<span class="' + (i === card.stress ? "stress-mark" : "") + '">' + escapeHtml(s) + '</span>';
+  });
+  html += '<button class="speak-btn" id="speakBtn">🔊</button>';
+  html += '</div>';
+  html += '<div class="word-ko">' + escapeHtml(card.ko) + '</div>';
+  if (!state.flipped) {
+    html += '<div class="flip-hint">카드를 눌러 ' + (card.groupType === "basic" ? "뜻과 예문" : "어원과 예문") + ' 보기</div>';
+  } else {
+    html += '<div class="bridge"><div class="bridge-row">';
+    html += '<span class="bridge-chip es">' + escapeHtml(card.es) + '</span><span class="bridge-arc"></span>';
+    html += '<span class="bridge-chip en">' + escapeHtml(card.en) + '</span></div>';
+    html += '<p class="etym-text">' + escapeHtml(card.etymology) + '</p>';
+    html += '<div class="example-box"><div class="example-es">' + escapeHtml(card.example) + '</div>';
+    html += '<div class="example-ko">' + escapeHtml(card.exampleKo) + '</div></div></div>';
+  }
+  html += '</div>';
+  html += '<button class="nav-arrow" id="nextCard">›</button>';
+  html += '</div>';
+  html += '<div class="dot-row">' + (idx + 1) + ' / ' + filtered.length + '</div>';
+
+  document.getElementById("tabContent").innerHTML = html;
+  bindCardEvents();
+}
+function bindCardEvents() {
+  document.querySelectorAll("[data-filter]").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      state.filter = btn.dataset.filter;
+      state.cardIndex = 0;
+      state.flipped = false;
+      renderCards();
+    });
+  });
+  var favToggle = document.getElementById("favToggle");
+  if (favToggle) favToggle.addEventListener("click", function () {
+    state.onlyFavorites = !state.onlyFavorites;
+    state.cardIndex = 0;
+    renderCards();
+  });
+  var prev = document.getElementById("prevCard");
+  var next = document.getElementById("nextCard");
+  var flip = document.getElementById("flipCard");
+  var star = document.getElementById("starBtn");
+  var speakBtn = document.getElementById("speakBtn");
+  var filtered = getFilteredWords();
+  if (prev) prev.addEventListener("click", function () {
+    if (!filtered.length) return;
+    state.flipped = false;
+    state.cardIndex = (state.cardIndex - 1 + filtered.length) % filtered.length;
+    renderCards();
+  });
+  if (next) next.addEventListener("click", function () {
+    if (!filtered.length) return;
+    state.flipped = false;
+    state.cardIndex = (state.cardIndex + 1) % filtered.length;
+    renderCards();
+  });
+  if (flip) flip.addEventListener("click", function () {
+    var idx = filtered.length ? state.cardIndex % filtered.length : 0;
+    var card = filtered[idx];
+    state.flipped = !state.flipped;
+    state.viewed.add(card.id);
+    saveStore();
+    renderHeader();
+    renderCards();
+  });
+  if (star) star.addEventListener("click", function (e) {
+    e.stopPropagation();
+    var idx = filtered.length ? state.cardIndex % filtered.length : 0;
+    var card = filtered[idx];
+    if (state.favorites.has(card.id)) state.favorites.delete(card.id);
+    else state.favorites.add(card.id);
+    saveStore();
+    renderCards();
+  });
+  if (speakBtn) speakBtn.addEventListener("click", function (e) {
+    e.stopPropagation();
+    var idx = filtered.length ? state.cardIndex % filtered.length : 0;
+    speak(filtered[idx].es);
+  });
+}
+
+/* ------------------------------------------------------------------ */
+/* Render: quiz tab                                                      */
+/* ------------------------------------------------------------------ */
+function renderQuiz() {
+  var word = findWord(state.quizWordId) || WORDS[0];
+  var html = '<div class="rule-box"><b>스페인어 강세 규칙</b><br>' +
+    '모음(a,e,i,o,u) · n · s로 끝나는 단어 → 뒤에서 두 번째 음절에 강세<br>' +
+    '그 외 자음으로 끝나는 단어 → 마지막 음절에 강세<br>' +
+    '규칙에서 벗어나면 악센트 부호(´)로 강세 위치를 표시해요.</div>';
+  html += '<div class="quiz-card"><div class="quiz-prompt">강세가 있는 음절을 골라보세요</div>';
+  html += '<div style="margin-bottom:8px;font-size:15px;color:var(--ink-soft);font-style:italic;">' + escapeHtml(word.ko) + ' · ' + escapeHtml(word.en) + '</div>';
+  html += '<div class="syll-row">';
+  word.syllables.forEach(function (s, i) {
+    var cls = "syll-btn";
+    if (state.quizFeedback) {
+      if (i === word.stress) cls += " correct";
+      else if (i === state.quizFeedback.idx) cls += " wrong";
+    }
+    html += '<button class="' + cls + '" data-idx="' + i + '"' + (state.quizFeedback ? " disabled" : "") + '>' + escapeHtml(s) + '</button>';
+  });
+  html += '<button class="speak-btn" id="quizSpeak">🔊</button></div>';
+  html += '<div class="quiz-feedback ' + (state.quizFeedback ? (state.quizFeedback.correct ? "correct" : "wrong") : "") + '">' +
+    (state.quizFeedback ? (state.quizFeedback.correct ? "정답이에요! 잘했어요." : "다음 문제로 넘어가면서 오답노트에 저장할게요.") : "") + '</div>';
+  html += '</div>';
+  document.getElementById("tabContent").innerHTML = html;
+
+  document.querySelectorAll("[data-idx]").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var idx = parseInt(btn.dataset.idx, 10);
+      var correct = idx === word.stress;
+      state.quizFeedback = { correct: correct, idx: idx };
+      if (!correct) {
+        state.mistakes.push({ rid: nextId(), type: "stress", wordId: word.id });
+        saveStore();
+        renderHeader();
+      }
+      renderQuiz();
+      setTimeout(function () {
+        state.quizFeedback = null;
+        state.quizWordId = pickRandomWord(word.id).id;
+        renderQuiz();
+      }, correct ? 900 : 1400);
+    });
+  });
+  var qs = document.getElementById("quizSpeak");
+  if (qs) qs.addEventListener("click", function () { speak(word.es); });
+}
+
+/* ------------------------------------------------------------------ */
+/* Render: sentence tab                                                  */
+/* ------------------------------------------------------------------ */
+function renderSentence() {
+  var word = findWord(state.sentenceWordId) || WORDS[1];
+  var html = '<div class="sentence-card">';
+  html += '<div class="target-word"><span class="es-word">' + escapeHtml(word.es) + '</span>';
+  html += '<button class="speak-btn" id="sentSpeak">🔊</button></div>';
+  html += '<div class="target-meta">' + escapeHtml(word.ko) + ' · ' + escapeHtml(word.en) + ' — 이 단어를 사용해서 스페인어 문장을 만들어보세요</div>';
+  html += '<textarea id="sentInput" placeholder="예: Me gusta la música.">' + escapeHtml(state.sentenceInput) + '</textarea>';
+  html += '<div class="btn-row"><button class="btn primary" id="sentSubmit">확인하기</button>';
+  html += '<button class="btn ghost" id="sentNext">다른 단어</button></div>';
+  if (state.sentenceFeedback) {
+    var fb = state.sentenceFeedback;
+    html += '<div class="feedback-box ' + (fb.passed ? "pass" : "fail") + '">';
+    if (fb.passed) html += "좋아요! '" + escapeHtml(word.es) + "'를 잘 사용한 문장이에요.";
+    else if (!fb.containsWord) html += "문장에 '" + escapeHtml(word.es) + "' 단어가 보이지 않아요. 오답노트에 저장했어요.";
+    else html += "단어는 잘 넣었지만 문장이 조금 짧아요 (3단어 이상 써보세요). 오답노트에 저장했어요.";
+    html += '<div class="model">참고 예문: ' + escapeHtml(word.example) + ' <span style="font-style:normal;color:var(--ink-soft);">(' + escapeHtml(word.exampleKo) + ')</span></div></div>';
+  }
+  html += '<p style="font-size:11.5px;color:var(--ink-soft);margin-top:14px;">* 정교한 문법 검사는 아니고, 단어 사용 여부와 문장 길이를 확인하는 간단한 체크예요.</p>';
+  html += '</div>';
+  document.getElementById("tabContent").innerHTML = html;
+
+  document.getElementById("sentInput").addEventListener("input", function (e) { state.sentenceInput = e.target.value; });
+  document.getElementById("sentSpeak").addEventListener("click", function () { speak(word.es); });
+  document.getElementById("sentSubmit").addEventListener("click", function () {
+    var result = checkSentence(word, state.sentenceInput);
+    state.sentenceFeedback = result;
+    if (!result.passed) {
+      state.mistakes.push({ rid: nextId(), type: "sentence", wordId: word.id, userAnswer: result.trimmed });
+      saveStore();
+      renderHeader();
+    }
+    renderSentence();
+  });
+  document.getElementById("sentNext").addEventListener("click", function () {
+    var w = pickRandomWord(word.id);
+    state.sentenceWordId = w.id;
+    state.sentenceInput = "";
+    state.sentenceFeedback = null;
+    renderSentence();
+  });
+}
+
+/* ------------------------------------------------------------------ */
+/* Render: review tab                                                     */
+/* ------------------------------------------------------------------ */
+function clearMistake(rid) {
+  state.mistakes = state.mistakes.filter(function (m) { return m.rid !== rid; });
+  delete state.reviewInputs[rid];
+  delete state.reviewInputs[rid + "-feedback"];
+  saveStore();
+  renderHeader();
+}
+function renderReview() {
+  var stressMistakes = state.mistakes.filter(function (m) { return m.type === "stress"; });
+  var sentenceMistakes = state.mistakes.filter(function (m) { return m.type === "sentence"; });
+  var html = "";
+  if (state.mistakes.length === 0) {
+    html = '<div class="empty-state"><div class="icon">✨</div><div>아직 오답이 없어요. 퀴즈와 문장 연습에서 틀린 내용이 여기 모여요.</div></div>';
+    document.getElementById("tabContent").innerHTML = html;
+    return;
+  }
+  if (stressMistakes.length > 0) {
+    html += '<div class="review-section-title">강세 퀴즈 오답 (' + stressMistakes.length + ')</div>';
+    stressMistakes.forEach(function (m) {
+      var w = findWord(m.wordId);
+      html += '<div class="review-item"><div class="review-item-head"><span class="es-word">' + escapeHtml(w.es) + '</span>';
+      html += '<span style="font-size:12.5px;color:var(--ink-soft);">' + escapeHtml(w.ko) + '</span></div>';
+      html += '<div class="syll-row" style="justify-content:flex-start;">';
+      w.syllables.forEach(function (s, i) {
+        html += '<button class="syll-btn" style="font-size:16px;padding:7px 12px;" data-rid="' + m.rid + '" data-idx="' + i + '">' + escapeHtml(s) + '</button>';
+      });
+      html += '</div></div>';
+    });
+  }
+  if (sentenceMistakes.length > 0) {
+    html += '<div class="review-section-title">문장 만들기 오답 (' + sentenceMistakes.length + ')</div>';
+    sentenceMistakes.forEach(function (m) {
+      var w = findWord(m.wordId);
+      var fb = state.reviewInputs[m.rid + "-feedback"];
+      html += '<div class="review-item"><div class="review-item-head"><span class="es-word">' + escapeHtml(w.es) + '</span>';
+      html += '<button class="icon-btn" data-clear="' + m.rid + '">✓</button></div>';
+      html += '<div class="review-user-answer">이전 답: ' + escapeHtml(m.userAnswer || "(빈 문장)") + '</div>';
+      html += '<div class="review-input-row"><input placeholder="다시 문장을 써보세요" data-input="' + m.rid + '" value="' + escapeHtml(state.reviewInputs[m.rid] || "") + '">';
+      html += '<button class="icon-btn" data-retry="' + m.rid + '">↻</button></div>';
+      if (fb && !fb.passed) html += '<div class="review-note">아직이에요 — \'' + escapeHtml(w.es) + '\'를 포함해서 3단어 이상으로 써보세요.</div>';
+      html += '</div>';
+    });
+  }
+  document.getElementById("tabContent").innerHTML = html;
+
+  document.querySelectorAll("[data-rid][data-idx]").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var rid = parseInt(btn.dataset.rid, 10);
+      var idx = parseInt(btn.dataset.idx, 10);
+      var m = state.mistakes.filter(function (x) { return x.rid === rid; })[0];
+      if (!m) return;
+      var w = findWord(m.wordId);
+      if (idx === w.stress) clearMistake(rid);
+      renderReview();
+    });
+  });
+  document.querySelectorAll("[data-clear]").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      clearMistake(parseInt(btn.dataset.clear, 10));
+      renderReview();
+    });
+  });
+  document.querySelectorAll("[data-input]").forEach(function (inp) {
+    inp.addEventListener("input", function () {
+      state.reviewInputs[inp.dataset.input] = inp.value;
+    });
+  });
+  document.querySelectorAll("[data-retry]").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var rid = parseInt(btn.dataset.retry, 10);
+      var m = state.mistakes.filter(function (x) { return x.rid === rid; })[0];
+      if (!m) return;
+      var w = findWord(m.wordId);
+      var val = state.reviewInputs[rid] || "";
+      var result = checkSentence(w, val);
+      if (result.passed) { clearMistake(rid); }
+      else { state.reviewInputs[rid + "-feedback"] = result; }
+      renderReview();
+    });
+  });
+}
+
+/* ------------------------------------------------------------------ */
+/* Main render + tab switching                                           */
+/* ------------------------------------------------------------------ */
+function renderTab() {
+  if (state.tab === "cards") renderCards();
+  else if (state.tab === "quiz") renderQuiz();
+  else if (state.tab === "sentence") renderSentence();
+  else if (state.tab === "review") renderReview();
+}
+document.querySelectorAll(".tab-btn").forEach(function (btn) {
+  btn.addEventListener("click", function () {
+    state.tab = btn.dataset.tab;
+    renderHeader();
+    renderTab();
+  });
+});
+
+renderHeader();
+renderInstallTip();
+renderTab();
+if (window.speechSynthesis) {
+  window.speechSynthesis.onvoiceschanged = function () {};
+}
+</script>
+</body>
+</html>
